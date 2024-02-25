@@ -95,8 +95,56 @@ def test_delete_nonexistent_item_id(client: TestClient):
     assert response.json() == {"detail": "Item not found"}
 
 
+def test_update_item(client: TestClient):
+    test_item_gadget = {
+        "name": "night vision device",
+        "description": "night vision",
+        "category": "gadget",
+        "quantity": 9,
+        "price": 90.9
+    }
+    response = client.post(
+        "/items/",
+        json=test_item_gadget,
+    )
+    assert response.status_code == 200, response.text
+    data = response.json()
+    item_id = data["id"]
+
+    test_item_gadget_updated = update_item(test_item_gadget)
+    response = client.put(f"/items/{item_id}", json=test_item_gadget_updated)
+    assert response.status_code == 204
+
+    response = client.get(f"/items/{item_id}")
+    assert response.status_code == 200, response.text
+    data = response.json()
+    data.pop('id')
+    assert data == test_item_gadget_updated
+
+
+def test_update_nonexistent_item_id(client: TestClient):
+    nonexistent_item_id = generate_random_number()
+    test_item_gadget = {
+        "name": "night vision device",
+        "description": "night vision",
+        "category": "gadget",
+        "quantity": 9,
+        "price": 90.9
+    }
+
+    response = client.put(f"/items/{nonexistent_item_id}", json=test_item_gadget)
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Item not found"}
+
+
 def generate_random_number():
     """
     generate random 6 digits number e.g. 123456
     """
     return random.randint(100000, 999999)
+
+
+def update_item(item: dict) -> dict:
+    return {k: v + ' updated' if isinstance(v, str) else v + 1
+            for k, v in item.items()
+            }

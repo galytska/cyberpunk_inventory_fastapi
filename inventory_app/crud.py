@@ -26,3 +26,15 @@ def create_item(db: Session, item: schemas.ItemCreate):
 def delete_item(db: Session, item_id: int):
     db.query(models.Item).filter(models.Item.id == item_id).delete()
     db.commit()
+
+
+def update_item(db: Session, item_id: int, item: schemas.ItemBase):
+    db_item = db.query(models.Item).filter(models.Item.id == item_id)
+    db_item.update({
+        models.Item.name: item.name,
+        models.Item.description: item.description,
+        models.Item.category: item.category,
+        models.Item.quantity: item.quantity,
+        models.Item.price: item.price,
+    })
+    db.commit()

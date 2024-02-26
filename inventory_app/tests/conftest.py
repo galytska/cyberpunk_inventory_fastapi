@@ -1,12 +1,12 @@
 from pytest import fixture
 
 from fastapi.testclient import TestClient
+from inventory_app.database import Base
+from inventory_app.main import app
+from inventory_app.routers.items import get_db
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-
-from ..database import Base
-from ..main import app, get_db
 
 
 @fixture(scope='module')

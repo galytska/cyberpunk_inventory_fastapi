@@ -3,10 +3,11 @@ from pytest import fixture
 from fastapi.testclient import TestClient
 from inventory_app.database import Base
 from inventory_app.main import app
-from inventory_app.models import Item
-from inventory_app.routers.items import get_current_user, get_db
+from inventory_app.models import Item, User
+from inventory_app.routers.users import bcrypt_context
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
+
 from sqlalchemy.pool import StaticPool
 
 # use an in-memory database so no database file is created
@@ -46,14 +47,20 @@ def override_get_current_user():
     return {"username": "bob", "id": 1, "role": "admin"}
 
 
-@fixture(scope='session')
-def test_app():
+@fixture(scope="module", )
+def test_app(request):
+    # db and user get from requesting module
+    # e.g. admin, items import own get_db and get_current_user functions
+    module_name = request.module.__name__.split("_")[-1]
+    get_db = getattr(request.module, f"{module_name}_get_db")
+    get_current_user = getattr(request.module, f"{module_name}_get_current_user")
+
     app.dependency_overrides[get_db] = override_get_db
     app.dependency_overrides[get_current_user] = override_get_current_user
     return app
 
 
-@fixture(scope="session")
+@fixture(scope="module")
 def client(test_app):
     client = TestClient(app)
     return client
@@ -84,6 +91,26 @@ def test_item():
 def tear_down_clear_items_table():
     yield
     clear_table("items")
+
+
+@fixture()
+def test_user():
+    user = {
+        "username": "bob",
+        "email": "bob@gmail.com",
+        "first_name": "bob",
+        "last_name": "smith",
+        "hashed_password": bcrypt_context.hash("test123"),
+        "role": "admin"
+    }
+
+    db = TestingSessionLocal()
+    db_item = User(**user)
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    yield user
+    clear_table("users")
 
 
 def clear_table(table_name):

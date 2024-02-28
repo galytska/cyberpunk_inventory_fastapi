@@ -1,7 +1,11 @@
 from fastapi.testclient import TestClient
 from inventory_app.models import Item
+from inventory_app.routers.items import get_current_user, get_db
 from inventory_app.tests.conftest import TestingSessionLocal, expected_item, get_db_item_by_id
 from inventory_app.tests.utils import generate_random_number, update_item
+
+items_get_current_user = get_current_user
+items_get_db = get_db
 
 
 def test_read_items_smoke(client: TestClient):
@@ -65,7 +69,7 @@ def test_create_existing_item(client: TestClient, test_item: dict):
 
 
 def test_delete_item(client: TestClient, test_item: dict):
-    response = client.delete(f"/items/1")
+    response = client.delete("/items/1")
     assert response.status_code == 204
     assert get_db_item_by_id(item_id=1) is None
 
@@ -77,7 +81,7 @@ def test_delete_nonexistent_item_id(client: TestClient):
     assert response.json() == {"detail": "Item not found"}
 
 
-def test_update_item(client: TestClient, test_item):
+def test_update_item(client: TestClient, test_item: dict):
     test_item_gadget_updated = update_item(test_item)
     response = client.put("/items/1", json=test_item_gadget_updated)
     assert response.status_code == 204
@@ -90,7 +94,7 @@ def test_update_item(client: TestClient, test_item):
     assert db_item.price == test_item_gadget_updated["price"]
 
 
-def test_update_nonexistent_item_id(client: TestClient, test_item):
+def test_update_nonexistent_item_id(client: TestClient, test_item: dict):
     nonexistent_item_id = generate_random_number()
     response = client.put(f"/items/{nonexistent_item_id}", json=test_item)
     assert response.status_code == 404

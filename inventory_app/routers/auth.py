@@ -60,6 +60,11 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    db_user_by_email = crud.get_user_by_email(db, email=user.email)
+    db_user_by_username = crud.get_user_by_username(db, username=user.username)
+    if db_user_by_email or db_user_by_username:
+        raise HTTPException(status_code=400, detail="User already registered")
+
     crud.create_user(db=db, user=user)
 
 

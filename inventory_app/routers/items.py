@@ -6,7 +6,7 @@ from inventory_app.database import SessionLocal
 from inventory_app.routers.auth import get_current_user
 from sqlalchemy.orm import Session
 
-router = APIRouter()
+router = APIRouter(tags=["items"])
 user_dependency = Annotated[dict, Depends(get_current_user)]
 
 

@@ -6,7 +6,7 @@ Project dependencies listed in **requirements.txt** file
 
 Database path example specified in **database.py**
 
-`SQLALCHEMY_DATABASE_URL = "postgresql://postgres:postgres@localhost/sample_db"`
+`SQLALCHEMY_DATABASE_URL = "postgresql://postgres:postgres@mydb/sample_db"`
 
 ## Run project
 
@@ -44,4 +44,10 @@ To run one most basic test for the health check of the project run
 from the project directory cyberpunk_inventory_fastapi$
 ```
 pytest -k "smoke"
+```
+
+## Deployment
+Project includes Dockerfile and docker-compose.yaml file for easy deployment using docker compose.
+```
+docker-compose up -d
 ```

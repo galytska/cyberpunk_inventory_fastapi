@@ -1,13 +1,15 @@
-version: '3.5'
+version: '3.8'
 services:
   myweb:
     build: .
     depends_on:
       - mydb
     volumes:
-      - ./:/code:ro
+      - ./:/code
     ports:
-      - "8000:80"
+      - '8000:80'
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@mydb/sample_db
 
   mydb:
     container_name: mydb
@@ -22,4 +24,4 @@ services:
     image: postgres:16-alpine
 
 volumes:
-   postgres_data:
+  postgres_data:

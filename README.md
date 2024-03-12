@@ -4,9 +4,9 @@
 
 Project dependencies listed in **requirements.txt** file
 
-Database path example specified in **database.py**
+Database path defined with the environment variable **DATABASE_URL** for example
 
-`SQLALCHEMY_DATABASE_URL = "postgresql://postgres:postgres@mydb/sample_db"`
+`DATABASE_URL = "postgresql://postgres:postgres@mydb/sample_db"`
 
 ## Run project
 
